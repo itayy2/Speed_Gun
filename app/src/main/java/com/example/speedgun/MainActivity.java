@@ -11,5 +11,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         int x = 5;
+        x = 5 + 2; // עברית אפס
     }
 }
