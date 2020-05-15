@@ -1,7 +1,10 @@
 package com.example.speedgun;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 
 /*public class MainActivity extends AppCompatActivity {
@@ -40,6 +43,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.View.OnTouchListener;
 import android.view.SurfaceView;
+import android.widget.TextView;
 
 public class MainActivity extends Activity implements OnTouchListener, CvCameraViewListener2 {
     private static final String  TAG              = "MainActivity";
@@ -52,10 +56,12 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
     private Mat                  mSpectrum;
     private Size                 SPECTRUM_SIZE;
     private Scalar               CONTOUR_COLOR;
+    public TextView get_coor;
 
     private CameraBridgeViewBase mOpenCvCameraView;
 
     private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
+        @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         public void onManagerConnected(int status) {
             switch (status) {
@@ -90,6 +96,8 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.color_blob_detection_activity_surface_view);
         mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
         mOpenCvCameraView.setCvCameraViewListener(this);
+
+        this.get_coor = findViewById(R.id.get_coor);
     }
 
     @Override
@@ -143,8 +151,12 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
         int x = (int)event.getX() - xOffset;
         int y = (int)event.getY() - yOffset;
 
-        Log.i(TAG, "Touch image coordinates: (" + x + ", " + y + ")");
+        this.get_coor.setText("(" + x + ", " + y + ")");
+        this.get_coor.setTextColor(Color.WHITE);
+        this.get_coor.requestFocus();
 
+        Log.i(TAG, "Touch image coordinates: (" + x + ", " + y + ")");
+        /*
         if ((x < 0) || (y < 0) || (x > cols) || (y > rows)) return false;
 
         Rect touchedRect = new Rect();
@@ -179,14 +191,24 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
         touchedRegionRgba.release();
         touchedRegionHsv.release();
+         */
 
-        return false; // don't need subsequent touch events
+        return true; // don't need subsequent touch events
+    }
+
+    public boolean onCapturedPointerEvent(MotionEvent motionEvent) {
+        // Get the coordinates required by your app
+        float verticalOffset = motionEvent.getY();
+        this.get_coor.setText("" + verticalOffset);
+        // Use the coordinates to update your view and return true if the event was
+        // successfully processed
+        return true;
     }
 
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
         mRgba = inputFrame.rgba();
 
-        if (mIsColorSelected) {
+        /*if (mIsColorSelected) {
             mDetector.process(mRgba);
             List<MatOfPoint> contours = mDetector.getContours();
             Log.e(TAG, "Contours count: " + contours.size());
@@ -197,7 +219,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
             Mat spectrumLabel = mRgba.submat(4, 4 + mSpectrum.rows(), 70, 70 + mSpectrum.cols());
             mSpectrum.copyTo(spectrumLabel);
-        }
+        }*/
 
         return mRgba;
     }
