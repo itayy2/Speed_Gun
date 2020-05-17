@@ -3,7 +3,11 @@ package com.example.speedgun;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -17,6 +21,7 @@ import android.os.Bundle;
 }
 */
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -56,7 +61,27 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
     private Mat                  mSpectrum;
     private Size                 SPECTRUM_SIZE;
     private Scalar               CONTOUR_COLOR;
+
     public TextView get_coor;
+
+    private InertialNavigation inertial;
+
+    private Sensor mSensorMagnet;
+    private Sensor mSensorAcceleration;
+    private Sensor mSensorGyro;
+
+    private SensorManager mSensorManager;
+
+    private long time;
+
+    private ArrayList<Float> mDataAX = new ArrayList<Float>();
+    private ArrayList<Float> mDataAY = new ArrayList<Float>();
+    private ArrayList<Float> mDataAZ = new ArrayList<Float>();
+    private ArrayList<Float> mDataGX = new ArrayList<Float>();
+    private ArrayList<Float> mDataGY = new ArrayList<Float>();
+    private ArrayList<Float> mDataGZ = new ArrayList<Float>();
+
+
 
     private CameraBridgeViewBase mOpenCvCameraView;
 
@@ -98,7 +123,81 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
         mOpenCvCameraView.setCvCameraViewListener(this);
 
         this.get_coor = findViewById(R.id.get_coor);
+
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mSensorMagnet = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        mSensorAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mSensorGyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        if(mSensorMagnet == null) {//Check if sensor is exist !
+            int y = 5;
+        }
+            //    mSensorValueTxt.setText("Sensor not found !");
+
     }
+
+    /*
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if( (mSensorManager != null) && (mSensorAcceleration != null) && (mSensorGyro != null) ) {
+            //  mSensorManager.registerListener(this, mSensorMagnet, SensorManager.SENSOR_DELAY_FASTEST);
+            mSensorManager.registerListener(this, mSensorAcceleration,SensorManager.SENSOR_DELAY_FASTEST);
+            mSensorManager.registerListener(this,mSensorGyro,SensorManager.SENSOR_DELAY_FASTEST);
+
+            time = System.currentTimeMillis();
+        }
+    }
+    */
+
+//    @Override   //????
+    public void onSensorChanged(SensorEvent event) {
+
+        int tTot = 5000;
+        if(System.currentTimeMillis() - time < tTot) {
+            switch (event.sensor.getType()){
+                case Sensor.TYPE_ACCELEROMETER:
+                    mDataAX.add(event.values[0]);
+                    mDataAY.add(event.values[1]);
+                    mDataAZ.add(event.values[2]);
+
+                    break;
+                case Sensor.TYPE_GYROSCOPE:
+                    mDataGX.add(event.values[0]);
+                    mDataGY.add(event.values[1]);
+                    mDataGZ.add(event.values[2]);
+
+                    break;
+            }
+        }else{
+            Log.d("onSensorChanged: ", mDataAX.toString());
+
+            float dtAx = (float) mDataAX.size()/tTot;
+            float dtGx = (float) mDataGX.size()/tTot;
+
+            inertial = new InertialNavigation(0,0,0,0,0,0,0,0,0,dtAx,dtGx);
+
+            for(int i = 0; i < mDataAX.size(); i++){
+                inertial.SetChangeAcceleration(mDataAX.get(i),mDataAY.get(i),mDataAZ.get(i));
+            }
+
+            for(int j=0;j<mDataGX.size();j++){
+                inertial.SetChangeGyro(mDataGX.get(j),mDataGY.get(j),mDataGZ.get(j));
+            }
+            int x = 5;
+
+        }
+//        float currentValue = event.values[0];
+//        float currentValue = inertial.x;
+//        mSensorValueTxt.setText(getResources().getString(R.string.magnetic_value, currentValue));
+//        if(currentValue > 120)
+//            mCircle.setBackgroundResource(R.drawable.circle_red);
+//       else
+//            mCircle.setBackgroundResource(R.drawable.circle_green);
+
+
+    }
+
 
     @Override
     public void onPause()
@@ -231,4 +330,11 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
         return new Scalar(pointMatRgba.get(0, 0));
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    //    mSensorManager.unregisterListener(this);  ??
+    }
+
 }
