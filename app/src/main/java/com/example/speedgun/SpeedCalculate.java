@@ -33,7 +33,7 @@ public class SpeedCalculate {
 
     public void SpeedCalculate(double distance, double numericalApertureAngle ,double dt , int n, int m){
 
-        this.dt =dt;
+        this.dt = dt;
 
         this.distance = distance;
 

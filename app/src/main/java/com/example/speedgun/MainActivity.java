@@ -124,8 +124,9 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
         this.get_coor = findViewById(R.id.get_coor);
 
+
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        mSensorMagnet = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+
         mSensorAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorGyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         if(mSensorMagnet == null) {//Check if sensor is exist !
@@ -187,15 +188,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
             int x = 5;
 
         }
-//        float currentValue = event.values[0];
-//        float currentValue = inertial.x;
-//        mSensorValueTxt.setText(getResources().getString(R.string.magnetic_value, currentValue));
-//        if(currentValue > 120)
-//            mCircle.setBackgroundResource(R.drawable.circle_red);
-//       else
-//            mCircle.setBackgroundResource(R.drawable.circle_green);
-
-
     }
 
 
