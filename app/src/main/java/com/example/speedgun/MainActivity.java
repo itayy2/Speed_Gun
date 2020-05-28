@@ -11,16 +11,6 @@ import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 
-/*public class MainActivity extends AppCompatActivity {
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-    }
-}
-*/
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -135,21 +125,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
     }
 
-    /*
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        if( (mSensorManager != null) && (mSensorAcceleration != null) && (mSensorGyro != null) ) {
-            //  mSensorManager.registerListener(this, mSensorMagnet, SensorManager.SENSOR_DELAY_FASTEST);
-            mSensorManager.registerListener(this, mSensorAcceleration,SensorManager.SENSOR_DELAY_FASTEST);
-            mSensorManager.registerListener(this,mSensorGyro,SensorManager.SENSOR_DELAY_FASTEST);
-
-            time = System.currentTimeMillis();
-        }
-    }
-    */
-
 //    @Override   //????
     public void onSensorChanged(SensorEvent event) {
 
@@ -254,7 +229,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
         this.get_coor.setTextColor(Color.WHITE);
         this.get_coor.requestFocus();
 
-        Log.i(TAG, "Touch image coordinates: (" + x + ", " + y + ")");
         /*
         if ((x < 0) || (y < 0) || (x > cols) || (y > rows)) return false;
 
