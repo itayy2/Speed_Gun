@@ -33,7 +33,7 @@ public class SpeedCalculate {
 
     public void SpeedCalculate(double distance, double numericalApertureAngle ,double dt , int n, int m){
 
-        this.dt = dt;
+        this.dt = dt / 1000;
 
         this.distance = distance;
 
@@ -124,5 +124,21 @@ public class SpeedCalculate {
 
     public void setY2(int y1) {
         this.y2 = y2;
+    }
+
+    public void setN(int n) {
+        this.n = n;
+    }
+
+    public void setM(int m) {
+        this.m = m;
+    }
+
+    public void setDt(double dt) {
+        this.dt = dt / 1000;
+    }
+
+    public double getNumericalApertureAngle() {
+        return numericalApertureAngle;
     }
 }

@@ -62,6 +62,11 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
     private Size                 SPECTRUM_SIZE;
     private Scalar               CONTOUR_COLOR;
 
+    private long dt;
+
+    private int x0;
+    private int y0;
+
     public TextView get_coor;
 
     private InertialNavigation inertial;
@@ -81,7 +86,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
     private ArrayList<Float> mDataGY = new ArrayList<Float>();
     private ArrayList<Float> mDataGZ = new ArrayList<Float>();
 
-
+    private SpeedCalculate speedCalculate;
 
     private CameraBridgeViewBase mOpenCvCameraView;
 
@@ -124,6 +129,8 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
         this.get_coor = findViewById(R.id.get_coor);
 
+        this.x0 = 0;
+        this.y0 = 0;
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
@@ -132,6 +139,10 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
         if(mSensorMagnet == null) {//Check if sensor is exist !
             int y = 5;
         }
+
+        this.speedCalculate = new SpeedCalculate();
+
+
             //    mSensorValueTxt.setText("Sensor not found !");
 
     }
@@ -233,8 +244,16 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
     }
 
     public boolean onTouch(View v, MotionEvent event) {
+        this.dt = System.currentTimeMillis() - this.dt;
+
         int cols = mRgba.cols();
         int rows = mRgba.rows();
+
+        speedCalculate.setM(cols);
+        speedCalculate.setN(rows);
+        speedCalculate.setDt(this.dt);
+        speedCalculate.setDistance(100);
+        speedCalculate.setNumericalApertureAngle(50);
 
         int xOffset = (mOpenCvCameraView.getWidth() - cols) / 2;
         int yOffset = (mOpenCvCameraView.getHeight() - rows) / 2;
@@ -242,9 +261,18 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
         int x = (int)event.getX() - xOffset;
         int y = (int)event.getY() - yOffset;
 
-        this.get_coor.setText("(" + x + ", " + y + ")");
+        double speedx = speedCalculate.getSpeedX(x, this.x0);
+        double speedy = speedCalculate.getSpeedY(y, this.y0);
+
+        this.x0 = x;
+        this.y0 = y;
+
+//        this.get_coor.setText("(" + x + ", " + y + ")");
+        this.get_coor.setText(speedCalculate.getTotalSpeed() + "v");
         this.get_coor.setTextColor(Color.WHITE);
         this.get_coor.requestFocus();
+
+
 
         Log.i(TAG, "Touch image coordinates: (" + x + ", " + y + ")");
         /*
@@ -298,7 +326,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
         mRgba = inputFrame.rgba();
-
         /*if (mIsColorSelected) {
             mDetector.process(mRgba);
             List<MatOfPoint> contours = mDetector.getContours();
